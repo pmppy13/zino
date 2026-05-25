@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>xoxo zeeno | face model · PR · collaborations</title>
+  <!-- Fonts + Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Three.js + GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0d0a14;
+      color: #f3eef5;
+      overflow-x: hidden;
+    }
+
+    /* 3D canvas background */
+    #bg-3d {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .soft-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 30% 20%, rgba(40, 25, 55, 0.6), #0a0710);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 4rem;
+    }
+
+    /* glass header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 0.7rem 2rem;
+      background: rgba(15, 10, 25, 0.6);
+      backdrop-filter: blur(14px);
+      border-radius: 100px;
+      border: 1px solid rgba(255, 160, 200, 0.3);
+      margin-bottom: 3rem;
+      animation: floatHeader 5s infinite alternate;
+    }
+    @keyframes floatHeader {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-5px); }
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffb7d2, #ff80b0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    nav a {
+      color: #eeddff;
+      text-decoration: none;
+      margin-left: 1.8rem;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    nav a:hover { color: #ff99cc; text-shadow: 0 0 5px #ff99cc; }
+
+    /* hero section */
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      margin: 1rem 0 4rem;
+    }
+    .hero-content {
+      flex: 1;
+      animation: fadeSlideUp 0.9s ease;
+    }
+    @keyframes fadeSlideUp {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255, 128, 176, 0.2);
+      backdrop-filter: blur(6px);
+      padding: 0.3rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid #ff99cc;
+      margin-bottom: 1rem;
+    }
+    .hero-content h1 {
+      font-size: 4rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(125deg, #ffffff, #ffbbdd, #ff99cc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .type-area {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin: 1rem 0;
+      color: #ffcfdf;
+    }
+    #typed-text {
+      color: #ff88bb;
+      border-right: 3px solid #ff88bb;
+      padding-right: 6px;
+      font-weight: 600;
+    }
+    .hero-content p {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #cfc2da;
+      max-width: 500px;
+      margin-bottom: 2rem;
+    }
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.7rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: 0.25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(95deg, #ff66aa, #ff99cc);
+      color: #120a1a;
+      box-shadow: 0 6px 18px rgba(255, 102, 170, 0.4);
+    }
+    .btn-primary:hover { transform: translateY(-4px) scale(1.02); }
+    .btn-outline {
+      border: 1.5px solid #ff99cc;
+      color: #ffccdd;
+      background: rgba(255, 153, 204, 0.1);
+    }
+    .btn-outline:hover { background: rgba(255, 153, 204, 0.25); transform: translateY(-3px); }
+    
+    .hero-3d {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      animation: floatSoft 4s infinite alternate;
+    }
+    @keyframes floatSoft {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-15px); }
+    }
+    .face-icon {
+      font-size: 9rem;
+      filter: drop-shadow(0 0 20px #ff66aa);
+      background: linear-gradient(145deg, #ffccdd, #ffaacc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* services cards */
+    .services {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin: 3rem 0 4rem;
+    }
+    .service-card {
+      background: rgba(25, 18, 35, 0.65);
+      backdrop-filter: blur(8px);
+      padding: 1.5rem;
+      border-radius: 48px;
+      text-align: center;
+      width: 220px;
+      border: 1px solid rgba(255, 153, 204, 0.3);
+      transition: all 0.3s;
+    }
+    .service-card:hover {
+      transform: translateY(-8px);
+      border-color: #ff99cc;
+    }
+    .service-card i {
+      font-size: 2.5rem;
+      color: #ff99cc;
+      margin-bottom: 1rem;
+    }
+    .service-card h3 { margin-bottom: 0.5rem; }
+
+    /* section title */
+    .section-title {
+      font-size: 2.3rem;
+      font-family: 'Playfair Display', serif;
+      text-align: center;
+      margin: 2rem 0 2rem;
+    }
+
+    /* HORIZONTAL SLIDING GALLERY */
+    .gallery-wrapper {
+      position: relative;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-behavior: smooth;
+      cursor: grab;
+      scrollbar-width: thin;
+      scrollbar-color: #ff99cc #2a1f34;
+      margin: 2rem 0 2rem;
+      border-radius: 32px;
+    }
+    .gallery-wrapper::-webkit-scrollbar {
+      height: 6px;
+    }
+    .gallery-wrapper::-webkit-scrollbar-track {
+      background: #2a1f34;
+      border-radius: 10px;
+    }
+    .gallery-wrapper::-webkit-scrollbar-thumb {
+      background: #ff99cc;
+      border-radius: 10px;
+    }
+    .horizontal-gallery {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1rem 0.5rem 1.5rem 0.5rem;
+      width: max-content;
+    }
+    .gallery-slide {
+      width: 320px;
+      flex-shrink: 0;
+      background: rgba(20, 14, 30, 0.8);
+      backdrop-filter: blur(8px);
+      border-radius: 32px;
+      overflow: hidden;
+      transition: all 0.4s;
+      border: 1px solid rgba(255, 153, 204, 0.3);
+    }
+    .gallery-slide:hover {
+      transform: translateY(-10px) scale(1.02);
+      border-color: #ff99cc;
+      box-shadow: 0 20px 35px rgba(255, 105, 180, 0.2);
+    }
+    .slide-img {
+      height: 380px;
+      background: #2a1f34;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .slide-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    .gallery-slide:hover .slide-img img {
+      transform: scale(1.05);
+    }
+    .slide-caption {
+      padding: 1rem;
+      text-align: center;
+      font-weight: 500;
+    }
+    .gallery-nav {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1rem 0 2rem;
+    }
+    .nav-btn {
+      background: rgba(255, 153, 204, 0.2);
+      border: 1px solid #ff99cc;
+      color: #ff99cc;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: 0.2s;
+    }
+    .nav-btn:hover {
+      background: #ff99cc;
+      color: #120a1a;
+      transform: scale(1.05);
+    }
+
+    /* contact block */
+    .contact-block {
+      background: rgba(30, 20, 45, 0.7);
+      backdrop-filter: blur(12px);
+      border-radius: 60px;
+      padding: 2rem;
+      text-align: center;
+      margin: 3rem 0;
+    }
+    .contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin: 1.5rem 0;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.6rem 1.5rem;
+      border-radius: 60px;
+    }
+    .contact-item i {
+      font-size: 1.3rem;
+      color: #ff99cc;
+    }
+    .social-links a {
+      font-size: 2rem;
+      margin: 0 1rem;
+      color: #ffbbdd;
+      transition: 0.2s;
+      display: inline-block;
+    }
+    .social-links a:hover { transform: translateY(-5px); color: #ff99cc; }
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 800px) {
+      .hero-content h1 { font-size: 2.6rem; }
+      .type-area { font-size: 1.1rem; }
+      .face-icon { font-size: 5rem; }
+      .container { padding: 1rem; }
+      nav a { margin-left: 1rem; }
+      .service-card { width: 100%; max-width: 200px; }
+      .gallery-slide { width: 260px; }
+      .slide-img { height: 300px; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-3d"></canvas>
+<div class="soft-overlay"></div>
+
+<div class="content">
+  <div class="container">
+    <header>
+      <div class="logo">✦ xoxo zeeno ✦</div>
+      <nav>
+        <a href="#home">Home</a>
+        <a href="#services">Services</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#contact">Connect</a>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+      <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-crown"></i> face model · digital creator</div>
+        <h1>xoxo zeeno</h1>
+        <div class="type-area">✨ <span id="typed-text"></span></div>
+        <p>Face model with a passion for authentic storytelling. Open for PR packages, collaborations & promotions. Let's create iconic campaigns together.</p>
+        <div class="btn-group">
+          <a href="#contact" class="btn btn-primary"><i class="fab fa-tiktok"></i> work with me</a>
+          <a href="#gallery" class="btn btn-outline"><i class="fas fa-camera"></i> portfolio</a>
+        </div>
+      </div>
+      <div class="hero-3d">
+        <i class="fas fa-smile-wink face-icon"></i>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services">
+      <h2 class="section-title">🌸 what i offer 🌸</h2>
+      <div class="services">
+        <div class="service-card"><i class="fas fa-gift"></i><h3>PR Package</h3><p>Product seeding, unboxings & honest reviews</p></div>
+        <div class="service-card"><i class="fas fa-handshake"></i><h3>Collaborations</h3><p>Brand partnerships, campaigns & events</p></div>
+        <div class="service-card"><i class="fas fa-chart-line"></i><h3>Promotions</h3><p>TikTok shoutouts, features & sponsored posts</p></div>
+      </div>
+    </section>
+
+    <!-- Horizontal Sliding Gallery Section -->
+    <section id="gallery">
+      <h2 class="section-title">📸 recent moments · slide to explore 📸</h2>
+      <div class="gallery-wrapper" id="galleryWrapper">
+        <div class="horizontal-gallery" id="horizontalGallery">
+          <!-- GALLERY SLIDES - Replace image URLs with her actual photos -->
+          <div class="gallery-slide">
+            <div class="slide-img">
+              <img src="https://placehold.co/600x800/ff99cc/ffffff?text=xoxo+zeeno+1" alt="xoxo zeeno editorial">
+            </div>
+            <div class="slide-caption">✨ soft glam editorial</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="slide-img">
+              <img src="https://placehold.co/600x800/ff99cc/ffffff?text=xoxo+zeeno+2" alt="xoxo zeeno natural">
+            </div>
+            <div class="slide-caption">🌸 natural face close-up</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="slide-img">
+              <img src="https://placehold.co/600x800/ff99cc/ffffff?text=xoxo+zeeno+3" alt="xoxo zeeno campaign">
+            </div>
+            <div class="slide-caption">👑 luxury beauty campaign</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="slide-img">
+              <img src="https://placehold.co/600x800/ff99cc/ffffff?text=xoxo+zeeno+4" alt="xoxo zeeno backstage">
+            </div>
+            <div class="slide-caption">💄 backstage · fashion week</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="slide-img">
+              <img src="https://placehold.co/600x800/ff99cc/ffffff?text=xoxo+zeeno+5" alt="xoxo zeeno street style">
+            </div>
+            <div class="slide-caption">🌟 street style moment</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="slide-img">
+              <img src="https://placehold.co/600x800/ff99cc/ffffff?text=xoxo+zeeno+6" alt="xoxo zeeno portrait">
+            </div>
+            <div class="slide-caption">📷 high fashion portrait</div>
+          </div>
+        </div>
+      </div>
+      <div class="gallery-nav">
+        <button class="nav-btn" id="scrollLeftBtn"><i class="fas fa-chevron-left"></i></button>
+        <button class="nav-btn" id="scrollRightBtn"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <p style="text-align: center; font-size: 0.8rem;">✨ drag to slide · click arrows · replace images with her real photos ✨</p>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-block">
+      <h2 style="font-family: 'Playfair Display';">💌 let's collaborate</h2>
+      <div class="contact-row">
+        <div class="contact-item"><i class="fab fa-tiktok"></i> <span>@xoxozeeno</span></div>
+        <div class="contact-item"><i class="fas fa-phone-alt"></i> <span>+234 701 983 0639</span></div>
+      </div>
+      <div class="social-links">
+        <a href="https://tiktok.com/@xoxozeeno" target="_blank"><i class="fab fa-tiktok"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+      </div>
+      <p style="margin-top: 1.5rem;">📧 management & bookings: <strong>hello@xoxozeeno.com</strong></p>
+      <p style="margin-top: 0.5rem; font-size: 0.8rem;">PR packages · collabs · promotions — let's bring your vision to life.</p>
+    </section>
+
+    <footer>
+      <p>© xoxo zeeno — face model & creator. All rights reserved.</p>
+    </footer>
+  </div>
+</div>
+
+<script>
+  // === TYPING ANIMATION ===
+  const typedSpan = document.getElementById('typed-text');
+  const words = ["Face Model", "PR & Collabs", "Content Creator", "Promotions", "xoxo zeeno"];
+  let wordIndex = 0, charIndex = 0, isDeleting = false;
+  function typeLoop() {
+    const full = words[wordIndex];
+    if (!isDeleting) {
+      typedSpan.innerText = full.substring(0, charIndex + 1);
+      charIndex++;
+      if (charIndex === full.length) {
+        isDeleting = true;
+        setTimeout(typeLoop, 2000);
+        return;
+      }
+    } else {
+      typedSpan.innerText = full.substring(0, charIndex - 1);
+      charIndex--;
+      if (charIndex === 0) {
+        isDeleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        setTimeout(typeLoop, 400);
+        return;
+      }
+    }
+    setTimeout(typeLoop, isDeleting ? 50 : 100);
+  }
+  typeLoop();
+
+  // === 3D BACKGROUND with particles and rotating crystal ===
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 10;
+  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-3d'), alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, 0);
+
+  // floating particles
+  const particleCount = 1200;
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount * 3);
+  for (let i = 0; i < particleCount; i++) {
+    positions[i*3] = (Math.random() - 0.5) * 45;
+    positions[i*3+1] = (Math.random() - 0.5) * 35;
+    positions[i*3+2] = (Math.random() - 0.5) * 35 - 15;
+  }
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const particleMat = new THREE.PointsMaterial({ color: 0xff99cc, size: 0.07, transparent: true, opacity: 0.5 });
+  const particles = new THREE.Points(geometry, particleMat);
+  scene.add(particles);
+
+  // rotating ring
+  const ringGeo = new THREE.TorusGeometry(1.6, 0.05, 64, 200);
+  const ringMat = new THREE.MeshStandardMaterial({ color: 0xff99cc, emissive: 0xff5599 });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  scene.add(ring);
+  
+  // core sphere
+  const coreGeo = new THREE.SphereGeometry(0.65, 32, 32);
+  const coreMat = new THREE.MeshStandardMaterial({ color: 0xff88bb, emissive: 0x551133 });
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  scene.add(core);
+
+  // lighting
+  const ambient = new THREE.AmbientLight(0x331122);
+  scene.add(ambient);
+  const light = new THREE.PointLight(0xff66aa, 1);
+  light.position.set(2, 3, 4);
+  scene.add(light);
+  const backLight = new THREE.DirectionalLight(0xffaacc, 0.6);
+  backLight.position.set(0, 1, -5);
+  scene.add(backLight);
+
+  let time = 0;
+  function animate3d() {
+    requestAnimationFrame(animate3d);
+    time += 0.008;
+    ring.rotation.x = Math.sin(time) * 0.3;
+    ring.rotation.z = time * 0.5;
+    core.rotation.x = time * 0.4;
+    core.rotation.y = time * 0.6;
+    particles.rotation.y = time * 0.02;
+    particles.rotation.x = Math.sin(time * 0.2) * 0.1;
+    renderer.render(scene, camera);
+  }
+  animate3d();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // === HORIZONTAL SCROLL GALLERY WITH DRAG & BUTTONS ===
+  const wrapper = document.getElementById('galleryWrapper');
+  const gallery = document.getElementById('horizontalGallery');
+  const leftBtn = document.getElementById('scrollLeftBtn');
+  const rightBtn = document.getElementById('scrollRightBtn');
+
+  // drag to scroll functionality
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  wrapper.addEventListener('mousedown', (e) => {
+    isDown = true;
+    wrapper.style.cursor = 'grabbing';
+    startX = e.pageX - wrapper.offsetLeft;
+    scrollLeft = wrapper.scrollLeft;
+  });
+  wrapper.addEventListener('mouseleave', () => {
+    isDown = false;
+    wrapper.style.cursor = 'grab';
+  });
+  wrapper.addEventListener('mouseup', () => {
+    isDown = false;
+    wrapper.style.cursor = 'grab';
+  });
+  wrapper.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - wrapper.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    wrapper.scrollLeft = scrollLeft - walk;
+  });
+
+  // button clicks
+  leftBtn.addEventListener('click', () => {
+    wrapper.scrollBy({ left: -350, behavior: 'smooth' });
+  });
+  rightBtn.addEventListener('click', () => {
+    wrapper.scrollBy({ left: 350, behavior: 'smooth' });
+  });
+
+  // GSAP scroll animations for service cards
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.utils.toArray('.service-card').forEach((card, i) => {
+    gsap.from(card, { scrollTrigger: { trigger: card, start: "top 90%" }, duration: 0.6, y: 40, opacity: 0, delay: i * 0.1 });
+  });
+
+  // mouse parallax on hero 3d icon
+  const hero3d = document.querySelector('.hero-3d');
+  document.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 15;
+    const y = (e.clientY / window.innerHeight - 0.5) * 8;
+    gsap.to(hero3d, { duration: 1, rotateY: x * 0.6, rotateX: y * 0.4, ease: "power2.out" });
+  });
+
+  // smooth anchor scrolling
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Optional: replace placeholder images with actual pics
+  // Just replace the src in each .slide-img img with the real image path
+  // Example: document.querySelectorAll('.slide-img img')[0].src = 'real-photo1.jpg';
+</script>
+</body>
+</html>
